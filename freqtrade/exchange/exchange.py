@@ -67,6 +67,8 @@ class Exchange:
         "ohlcv_params": {},
         "ohlcv_candle_limit": 500,
         "ohlcv_partial_candle": True,
+        # Check https://github.com/ccxt/ccxt/issues/10767 for removal of ohlcv_volume_currency
+        "ohlcv_volume_currency": "base",  # "base" or "quote"
         "trades_pagination": "time",  # Possible are "time" or "id"
         "trades_pagination_arg": "since",
         "l2_limit_range": None,
@@ -610,6 +612,7 @@ class Exchange:
             'cost': _amount * rate,
             'type': ordertype,
             'side': side,
+            'filled': 0,
             'remaining': _amount,
             'datetime': arrow.utcnow().isoformat(),
             'timestamp': arrow.utcnow().int_timestamp * 1000,
@@ -625,6 +628,7 @@ class Exchange:
             average = self.get_dry_market_fill_price(pair, side, amount, rate)
             dry_order.update({
                 'average': average,
+                'filled': _amount,
                 'cost': dry_order['amount'] * average,
             })
             dry_order = self.add_dry_order_fee(pair, dry_order)
